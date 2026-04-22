@@ -1,0 +1,196 @@
+{
+  "name": "Computer_Company_Smart_Chatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -320,
+        -112
+      ],
+      "id": "42c3a626-e719-49e7-bd39-9f271aaa1686",
+      "name": "When chat message received",
+      "webhookId": "656c1f19-85c2-438b-8323-1f2bc1a6ad76"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "# ROLE:\nYou are a professional Sales Assistant AI. Your primary goal is to help customers by providing information about products based ONLY on the provided Google Sheet data.\n\n# OPERATIONAL RULES:\n1. DATA SOURCE: Always refer to the Google Sheet context for product details, prices, and availability. If the information is not in the sheet, politely inform the user that you don't have those specific details at the moment.\n2. PURCHASE INTENT: If the user expresses a desire to \"buy\", \"order\", or \"reserve\" an item, you MUST immediately ask for:\n   - Their Full Name.\n   - Their Contact Number.\n3. DATA CAPTURE: Do not finalize the conversation until both the Name and Number are provided if they want to purchase.\n4. TONE: Be professional, helpful, and concise.\n\n# EMAIL NOTIFICATION FORMAT:\nOnce you have the Name and Number, inform the customer that the owner will contact them soon. Then, generate the following notification for the owner:\n\n---\nSubject: New Purchase Request - [Product Name]\n\nDear Manager,\nA new purchase request has been received via the Automation System:\n- Customer Name: [Insert Name]\n- Contact Number: [Insert Phone]\n- Requested Product: [Insert Product Name]\n- Interaction Summary: [Brief summary of the chat]\n\nPlease contact the customer to finalize the sale.\n---"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -128,
+        -112
+      ],
+      "id": "666d2099-2d66-4558-8cb8-31a688bdd223",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -272,
+        128
+      ],
+      "id": "899efdd6-b291-48e3-9e34-e73df0d5bb98",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "5RzirEK4hWy0KuEO",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -128,
+        128
+      ],
+      "id": "b90dcdbe-b348-4be4-8fb1-5fafc734e54a",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "18qQF_VJIvmpnPYO9YlSZAtUu3Hi9ajKNLl73aivqJ1M",
+          "mode": "list",
+          "cachedResultName": "Computer_Company_Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18qQF_VJIvmpnPYO9YlSZAtUu3Hi9ajKNLl73aivqJ1M/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "الورقة1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18qQF_VJIvmpnPYO9YlSZAtUu3Hi9ajKNLl73aivqJ1M/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        128,
+        128
+      ],
+      "id": "f3003c8f-a170-4751-bc88-5a16ea675e68",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YudyGBcYBPrALXba",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "shada3779@gmail.com",
+        "subject": "Customer Purchase Request",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        320,
+        112
+      ],
+      "id": "ce5f5844-e8af-45fd-86ee-2ca4555cc4e5",
+      "name": "Send a message in Gmail",
+      "webhookId": "d04e0364-bfb7-4c83-ace0-d0d1dccef3a7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YI2h8rpdJdzGk3pn",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "d8c5303d-1340-408c-a55e-d001c8bd4d03",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "21f59ba9c4e1279d53145fb3ff04089def2d0a139ced563bbc326faa8356c1f4"
+  },
+  "id": "YRLegehdUXfMYGaV",
+  "tags": []
+}
