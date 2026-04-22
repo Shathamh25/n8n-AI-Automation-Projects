@@ -1,0 +1,197 @@
+{
+  "name": "Computer_Company_Smart_Chatbot_Grok",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -320,
+        -112
+      ],
+      "id": "ab8a18a5-693b-41bd-a28c-914bf2ebe67c",
+      "name": "When chat message received",
+      "webhookId": "98666da8-fb8a-451f-9409-4418bddca48f"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "# ROLE:\nYou are a professional Sales Assistant AI. Your primary goal is to help customers by providing information about products based ONLY on the provided Google Sheet data.\n\n# OPERATIONAL RULES:\n1. DATA SOURCE: Always refer to the Google Sheet context for product details, prices, and availability. If the information is not in the sheet, politely inform the user that you don't have those specific details at the moment.\n2. PURCHASE INTENT: If the user expresses a desire to \"buy\", \"order\", or \"reserve\" an item, you MUST immediately ask for:\n   - Their Full Name.\n   - Their Contact Number.\n3. DATA CAPTURE: Do not finalize the conversation until both the Name and Number are provided if they want to purchase.\n4. TONE: Be professional, helpful, and concise.\n\n# EMAIL NOTIFICATION FORMAT:\nOnce you have the Name and Number, inform the customer that the owner will contact them soon. Then, generate the following notification for the owner:\n\n---\nSubject: New Purchase Request - [Product Name]\n\nDear Manager,\nA new purchase request has been received via the Automation System:\n- Customer Name: [Insert Name]\n- Contact Number: [Insert Phone]\n- Requested Product: [Insert Product Name]\n- Interaction Summary: [Brief summary of the chat]\n\nPlease contact the customer to finalize the sale.\n---"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -128,
+        -112
+      ],
+      "id": "b3420406-ae57-4654-8252-19699a038ab1",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -128,
+        128
+      ],
+      "id": "da740796-8fae-436f-aa47-05f51168c034",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "18qQF_VJIvmpnPYO9YlSZAtUu3Hi9ajKNLl73aivqJ1M",
+          "mode": "list",
+          "cachedResultName": "Computer_Company_Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18qQF_VJIvmpnPYO9YlSZAtUu3Hi9ajKNLl73aivqJ1M/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "الورقة1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18qQF_VJIvmpnPYO9YlSZAtUu3Hi9ajKNLl73aivqJ1M/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        128,
+        128
+      ],
+      "id": "818d96a3-eb90-4397-bb20-88f7c5a6f4ac",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YudyGBcYBPrALXba",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "shada3779@gmail.com",
+        "subject": "Customer Purchase Request",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        320,
+        112
+      ],
+      "id": "f6cd9d66-8ec6-4852-9246-b5b34a8aec47",
+      "name": "Send a message in Gmail",
+      "webhookId": "98ce3765-6564-4c49-8536-121278d1c881",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YI2h8rpdJdzGk3pn",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        128
+      ],
+      "id": "d2cc8111-634b-458d-acee-266d28861a26",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "Ymqbx5hkDqnGNp1r",
+          "name": "Groq account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "8f9ad3be-a843-49d6-bb6c-e4df5fa53cae",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "21f59ba9c4e1279d53145fb3ff04089def2d0a139ced563bbc326faa8356c1f4"
+  },
+  "id": "LenOMrHKG4TpAURP",
+  "tags": []
+}
